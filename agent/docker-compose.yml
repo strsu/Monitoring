@@ -1,6 +1,6 @@
 version: '3.7'
-services:
 
+services:
   node-exporter:
     image: prom/node-exporter
     ports:
@@ -34,36 +34,3 @@ services:
   redis:
     image: redis:7.0.7
     container_name: redis
-
-  prometheus:
-    image: prom/prometheus:v2.16.0
-    container_name: prometheus
-    user: root
-    volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-    ports:
-      - 9090:9090
-    command:
-      - --config.file=/etc/prometheus/prometheus.yml
-
-  pushgateway:
-    image: prom/pushgateway:latest
-    container_name: pushgateway
-    restart: always
-    ports:
-      - 9091:9091
-
-  grafana:
-    container_name: grafana
-    image: grafana/grafana:6.6.2
-    environment:
-      - GF_SECURITY_ADMIN_USER=user1
-      - GF_SECURITY_ADMIN_PASSWORD=user1
-      - GF_USERS_ALLOW_SIGN_UP=false
-    volumes:
-      - ./grafana/data/grafana/data:/var/lib/grafana
-      - ./grafana/data/grafana/provisioning:/etc/grafana/provisioning
-    ports:
-      - 9900:3000
-    depends_on:
-      - prometheus

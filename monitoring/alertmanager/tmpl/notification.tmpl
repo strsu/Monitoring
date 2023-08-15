@@ -1,0 +1,18 @@
+{{ define "custom_title" }}
+        {{- if (eq .Status "firing") -}}
+                {{- printf "*Triggered: %s (%s)*\n" .CommonAnnotations.triggered .CommonAnnotations.identifier -}}
+        {{- else if (eq .Status "resolved") -}}
+                {{- printf "*Recovered: %s (%s)*\n" .CommonAnnotations.resolved .CommonAnnotations.identifier -}}
+        {{- else -}}
+                {{- printf "Unknown status repored: %s\n" .CommonAnnotations.triggered -}}
+        {{- end -}}
+{{ end }}
+ 
+{{ define "custom_slack_message" }}
+        {{- if gt (len .Alerts.Firing) 0 -}}
+                {{- range .Alerts.Firing -}}
+                        {{- printf "[Metric Value] : %s\n" .Annotations.value -}}
+                        {{- printf "[PromQL Query] : %s\n" .Annotations.query -}}
+                {{- end -}}
+        {{- end -}}
+{{ end }}

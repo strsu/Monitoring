@@ -1,0 +1,13 @@
+groups:
+  - name: django # 그룹 이름
+    rules: 
+    - alert: django # 알림 이름
+      expr: rate(container_cpu_usage_seconds_total{name="django_local-backend-1"}[1m]) > 0.4 #알림 조건 설정
+      for: 10s
+      labels: # 필요한 label들을 설정할 수 있다.
+        application: django
+        severity: warning
+        class: django
+      annotations:
+        summary: "{{ $labels.groups }} {{ $labels.instance }}"
+        description: "{{ $labels.instance }}의 힙 메모리 사용량이 증가합니다. (current value: {{ $value }}"

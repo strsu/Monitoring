@@ -1,0 +1,26 @@
+global:
+  resolve_timeout: 5m # 만약 resolve 알림이 오지 않을 경우 얼마나 시간이 지나야만 자동으로 resolve되는가?
+  slack_api_url: https://hooks.slack.com/services/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 # 알림을 전송하기 위한 슬랙 Incoming Webhook URL. 
+
+route:
+  receiver: default-slack-alert
+  group_interval: 30s # 동일한 group alert가 왔을 때 몇 분 있다가 보낼 것인지. 이 alert는 resolved alert도 포함되기 때문에 짧게 설정하는 것이 좋다.
+  group_wait: 0s # alert 버퍼를 몇초동안 유지할 것인지
+  #group_by: ['django_alert', 'cluster', 'destination_workload'] # 어떻게 그룹핑할지를 명시. deduplicate가 아니라는 점에 유의
+  repeat_interval: 1m
+  routes:
+  - receiver: 'custom-slack-alert'
+    matchers:
+    - service="django"
+
+receivers:
+- name: default-slack-alert # Blackhole
+- name: custom-slack-alert
+  slack_configs:
+  - send_resolved: true
+  - channel: "#테스트"
+    title: 'testtt' # title은 하이퍼링크로 되어있는데, 내부 DNS 이름 (alertmanager-main0) 으로 되어있어 의미가 없다.
+    text: '{{ template "custom_title" . }}{{- "\n" -}}{{ template "custom_slack_message" . }}' # notification tmpl
+
+templates:
+- /tmpl/notification.tmpl
