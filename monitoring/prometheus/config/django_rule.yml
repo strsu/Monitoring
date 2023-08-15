@@ -7,7 +7,11 @@ groups:
       labels: # 필요한 label들을 설정할 수 있다.
         application: django
         severity: warning
-        class: django
       annotations:
-        summary: "{{ $labels.groups }} {{ $labels.instance }}"
-        description: "{{ $labels.instance }}의 힙 메모리 사용량이 증가합니다. (current value: {{ $value }}"
+        description: "{{ $labels.name }}의 CPU 사용량이 증가합니다. (current value: {{ $value }}"
+        triggered: "{{ $labels.name }} 서비스의 CPU 사용률이 높습니다."
+        resolved: "{{ $labels.name }} 서비스의 CPU 사용률이 안정화되었습니다."
+        value: "{{ printf \"%.3f\" $value }}" # $value 값이 너무 긴 소수점이라서 round함
+        identifier: "django"
+        summary: "{{ $labels.name }} 서비스에서 알람이 발생했습니다."
+        query: '`rate(container_cpu_usage_seconds_total{name="django_local-backend-1"}[1m]) > 0.4`'

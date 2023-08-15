@@ -19,7 +19,7 @@ receivers:
   slack_configs:
   - send_resolved: true
   - channel: "#테스트"
-    title: 'testtt' # title은 하이퍼링크로 되어있는데, 내부 DNS 이름 (alertmanager-main0) 으로 되어있어 의미가 없다.
+    title: '' # title은 하이퍼링크로 되어있는데, 내부 DNS 이름 (alertmanager-main0) 으로 되어있어 의미가 없다.
     text: '{{ template "custom_title" . }}{{- "\n" -}}{{ template "custom_slack_message" . }}' # notification tmpl
 
 templates:
