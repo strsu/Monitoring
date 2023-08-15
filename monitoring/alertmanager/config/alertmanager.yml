@@ -11,7 +11,7 @@ route:
   routes:
   - receiver: 'custom-slack-alert'
     matchers:
-    - service="django"
+    - alertname="django"
 
 receivers:
 - name: default-slack-alert # Blackhole
