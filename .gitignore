@@ -1,3 +1,8 @@
 monitoring/*/volume/
 
 monitoring/grafana/
+
+monitoring/loki/bolt*
+monitoring/loki/chunks
+monitoring/loki/wal
+monitoring/loki/rules
