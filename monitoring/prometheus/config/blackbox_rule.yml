@@ -1,0 +1,15 @@
+groups:
+  - name: blackbox # 그룹 이름
+    rules: 
+    - alert: tamna-api-server # 알림 이름
+      expr: probe_success{instance="http://api.vpphaezoom.com/admin/"} < 1 #알림 조건 설정
+      for: 120s
+      labels: # 필요한 label들을 설정할 수 있다.
+        application: tamna-api-server
+        severity: warning
+      annotations:
+        identifier: "tamna-api-server"
+        description: "{{ $labels.job }} 와 통신이 안 됩니다."
+        summary: "{{ $labels.job }} 서비스에서 알람이 발생했습니다."
+        triggered: "<!channel> {{ $labels.job }} 와 통신이 안 됩니다."
+        resolved: "<!channel> {{ $labels.job }} 와 통신을 성공했습니다."

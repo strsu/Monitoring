@@ -15,6 +15,13 @@ services:
       # web.enalbe-lifecycle은 api 재시작없이 설정파일들을 reload 할 수 있게 해줌
       - '--web.enable-lifecycle'
       - --config.file=/etc/prometheus/prometheus.yml
+  
+  blackbox:
+    image: prom/blackbox-exporter:v0.24.0
+    command:
+      - --config.file=/etc/blackbox/blackbox.yml
+    volumes:
+      - ./blackbox/blackbox.yml:/etc/blackbox/blackbox.yml
 
   loki:
     image: grafana/loki:latest
@@ -23,8 +30,10 @@ services:
       - ./loki/config:/mnt/config
       - ./loki:/loki
     ports:
-      - 7100:3100
-    command: -config.file=/mnt/config/loki-config.yml
+      - 3100:3100
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    command: -config.file=/mnt/config/loki-config.yml -config.expand-env=true
 
   pushgateway:
     image: prom/pushgateway:latest
@@ -55,6 +64,6 @@ services:
       - ./grafana/data:/var/lib/grafana
       - ./grafana/provisioning:/etc/grafana/provisioning
     ports:
-      - 9900:3000
+      - 3000:3000
     depends_on:
       - prometheus
