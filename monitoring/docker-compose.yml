@@ -64,6 +64,6 @@ services:
       - ./grafana/data:/var/lib/grafana
       - ./grafana/provisioning:/etc/grafana/provisioning
     ports:
-      - 3100:3000
+      - 5000:3000
     depends_on:
       - prometheus
