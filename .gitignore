@@ -1,8 +1,11 @@
 monitoring/*/volume/
 
-monitoring/grafana/
+monitoring/grafana/*/
 
 monitoring/loki/bolt*
 monitoring/loki/chunks
 monitoring/loki/wal
 monitoring/loki/rules
+
+slack_api_url
+.env
