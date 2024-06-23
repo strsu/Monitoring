@@ -24,10 +24,6 @@ limits_config:
   retention_period: 744h
   max_query_length: 0h
 
-storage_config:
-  filesystem:
-    directory: /tmp/loki/chunks
-
 schema_config:
   configs:
     - from: 2024-04-01
@@ -38,6 +34,11 @@ schema_config:
         prefix: index_
         period: 24h
         
+storage_config:
+  filesystem:
+    directory: /tmp/loki/chunks
+
+    
 # storage_config:
 #   boltdb_shipper:
 #     active_index_directory: /loki/boltdb-shipper-active
