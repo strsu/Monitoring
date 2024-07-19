@@ -15,7 +15,7 @@ services:
       # web.enalbe-lifecycle은 api 재시작없이 설정파일들을 reload 할 수 있게 해줌
       - '--web.enable-lifecycle'
       - --config.file=/etc/prometheus/prometheus.yml
-  
+
   blackbox:
     image: prom/blackbox-exporter:v0.24.0
     command:
@@ -65,6 +65,6 @@ services:
       - ./grafana/provisioning:/etc/grafana/provisioning
       - ./grafana/grafana-init.ini:/etc/grafana/grafana.ini
     ports:
-      - 5000:3000
+      - 3000:3000
     depends_on:
       - prometheus
