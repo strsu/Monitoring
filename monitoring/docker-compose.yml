@@ -68,3 +68,11 @@ services:
       - 3000:3000
     depends_on:
       - prometheus
+
+  cloudflared:
+    container_name: cloudflared
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
+    command: tunnel --no-autoupdate run --token ${TUNNEL_TOKEN}

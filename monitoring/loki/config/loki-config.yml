@@ -1,3 +1,4 @@
+
 # This is a complete configuration to deploy Loki backed by the filesystem.
 # The index will be shipped to the storage via tsdb-shipper.
 
@@ -15,58 +16,25 @@ common:
   path_prefix: /tmp/loki
 
 limits_config:
-  ingestion_rate_mb: 15
-  ingestion_burst_size_mb: 30
-  per_stream_rate_limit: 10MB
-  per_stream_rate_limit_burst: 20MB
+  ingestion_rate_mb: 15 # Loki가 초당 수용할 수 있는 로그 데이터의 최대 양을 설정합니다.
+  ingestion_burst_size_mb: 30 # 로그 데이터가 초과되어도 일시적으로 수용할 수 있는 최대 용량(버스트 한도)을 설정합니다.
+  per_stream_rate_limit: 10MB # 개별 스트림(로그 소스)에서 초당 수집할 수 있는 최대 데이터량을 설정합니다.
+  per_stream_rate_limit_burst: 20MB # 개별 스트림에서 일시적으로 초과할 수 있는 최대 데이터량(버스트 한도)을 설정합니다.
+  reject_old_samples_max_age: 168h # "오래된" 로그 데이터의 기준 시간을 설정합니다. 이 값보다 오래된 로그는 거부됩니다(단, reject_old_samples가 true일 경우).
   reject_old_samples: true
-  reject_old_samples_max_age: 168h
-  retention_period: 744h
-  max_query_length: 0h
+  retention_period: 744h # 로그 데이터를 저장하는 최대 기간을 설정합니다. 이 기간이 지나면 데이터가 삭제됩니다.
+  max_query_length: 0h # Loki 쿼리에서 검색 가능한 최대 시간 범위를 설정합니다, 0h(시간제한X)
 
 schema_config:
   configs:
-    - from: 2024-04-01
-      object_store: filesystem
-      store: tsdb
-      schema: v13
-      index:
-        prefix: index_
-        period: 24h
-        
+  - from: 2020-05-15
+    store: tsdb
+    object_store: filesystem
+    schema: v13
+    index:
+      prefix: index_
+      period: 24h
+
 storage_config:
   filesystem:
     directory: /tmp/loki/chunks
-
-    
-# storage_config:
-#   boltdb_shipper:
-#     active_index_directory: /loki/boltdb-shipper-active
-#     cache_location: /loki/boltdb-shipper-cache
-#     cache_ttl: 24h         # Can be increased for faster performance over longer query periods, uses more disk space
-#     shared_store: filesystem
-#   filesystem:
-#     directory: /loki/chunks
-
-# compactor:
-#   working_directory: /loki/boltdb-shipper-compactor
-#   shared_store: filesystem
-
-# chunk_store_config:
-#   max_look_back_period: 336h # how far data can be queried
-
-# table_manager:
-#   retention_deletes_enabled: true
-#   retention_period: 336h # how long data remaind
-
-# ruler:
-#   storage:
-#     type: local
-#     local:
-#       directory: /loki/rules
-#   rule_path: /loki/rules-temp
-#   alertmanager_url: http://alertmanager:9093
-#   ring:
-#     kvstore:
-#       store: inmemory
-#   enable_api: true

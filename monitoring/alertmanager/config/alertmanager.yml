@@ -1,6 +1,6 @@
 global:
   resolve_timeout: 5m # 만약 resolve 알림이 오지 않을 경우 얼마나 시간이 지나야만 자동으로 resolve되는가?
-  slack_api_url: https://hooks.slack.com/services/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 # 알림을 전송하기 위한 슬랙 Incoming Webhook URL. 
+  slack_api_url_file: "/config/slack_api_url" # 알림을 전송하기 위한 슬랙 Incoming Webhook URL. 
 
 route:
   receiver: default-slack-alert
