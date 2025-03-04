@@ -4,8 +4,9 @@ services:
     image: prom/prometheus:v2.16.0
     container_name: prometheus
     user: root
-    ports:
-      - 9090:9090
+    # 외부 포트 노출을 제거하고 내부 네트워크만 사용
+    # ports:
+    #   - 9090:9090
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:
@@ -15,6 +16,9 @@ services:
       # web.enalbe-lifecycle은 api 재시작없이 설정파일들을 reload 할 수 있게 해줌
       - '--web.enable-lifecycle'
       - --config.file=/etc/prometheus/prometheus.yml
+      - --log.level=warn  # 로그 레벨을 warn으로 설정 (기본값은 info)
+      - --web.external-url=/prometheus  # 서브 경로 설정
+      - --web.route-prefix=/  # 라우트 프리픽스 설정
 
   blackbox:
     image: prom/blackbox-exporter:v0.24.0
@@ -29,8 +33,9 @@ services:
     volumes:
       - ./loki/config:/mnt/config
       - ./loki:/loki
-    ports:
-      - 3100:3100
+    # 외부 포트 노출을 제거하고 내부 네트워크만 사용
+    # ports:
+    #   - 3100:3100
     extra_hosts:
       - "host.docker.internal:host-gateway"
     command: -config.file=/mnt/config/loki-config.yml -config.expand-env=true
@@ -39,14 +44,16 @@ services:
     image: prom/pushgateway:latest
     container_name: pushgateway
     restart: always
-    ports:
-      - 9091:9091
+    # 외부 포트 노출을 제거하고 내부 네트워크만 사용
+    # ports:
+    #   - 9091:9091
 
   alertmanager:
     image: prom/alertmanager:v0.25.0
     restart: unless-stopped
-    ports:
-      - "9093:9093"
+    # 외부 포트 노출을 제거하고 내부 네트워크만 사용
+    # ports:
+    #   - "9093:9093"
     volumes:
       - ./alertmanager/config:/config # 설정 디렉토리
       - ./alertmanager/volume:/data # 저장 디렉토리
@@ -56,20 +63,44 @@ services:
   grafana:
     container_name: grafana
     image: grafana/grafana:10.1.2
+    user: "472"  # Grafana 컨테이너의 기본 사용자 ID
     environment:
       - GF_SECURITY_ADMIN_USER=user1
       - GF_SECURITY_ADMIN_PASSWORD=user1
       - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_PROTOCOL=http
+      - GF_SERVER_HTTP_ADDR=0.0.0.0
+      - GF_SERVER_DOMAIN=localhost
+      - GF_SERVER_ROOT_URL=%(protocol)s://%(domain)s
     volumes:
       - ./grafana/data:/var/lib/grafana
       - ./grafana/provisioning:/etc/grafana/provisioning
       - ./grafana/grafana-init.ini:/etc/grafana/grafana.ini
-    ports:
-      - 3000:3000
+    # 외부 포트 노출을 제거하고 내부 네트워크만 사용
+    # ports:
+    #   - 3000:3000
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
       - prometheus
+    
+  nginx:
+    image: nginx:latest
+    container_name: nginx-proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/ssl:/etc/nginx/ssl
+      - ./nginx/logs:/var/log/nginx
+    depends_on:
+      - grafana
+      - prometheus
+      - loki
+      - alertmanager
+      - pushgateway
+    restart: always
 
   cloudflared:
     container_name: cloudflared
