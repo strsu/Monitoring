@@ -27,10 +27,4 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:rw # 위에 /var/run:/var/run:rw 대신에 이거 마운트 하면..
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro
-      - /dev/disk/:/dev/disk:ro  
-    depends_on:
-      - redis
-  
-  redis:
-    image: redis:7.0.7
-    container_name: redis
+      - /dev/disk/:/dev/disk:ro

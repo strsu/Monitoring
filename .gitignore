@@ -7,5 +7,6 @@ monitoring/loki/chunks
 monitoring/loki/wal
 monitoring/loki/rules
 
+monitoring/nginx/logs/*
+
 slack_api_url
-.env
