@@ -4,6 +4,8 @@ services:
     image: prom/prometheus:v2.16.0
     container_name: prometheus
     user: root
+    extra_hosts:
+      - "host.docker.internal:host-gateway"  # agent docker-compose 서비스에 연결하기 위해서 필요
     # ports:
     #   - 9090:9090
     volumes:
