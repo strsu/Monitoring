@@ -44,10 +44,8 @@ metrics_generator:
       max_items: 10000
     span_metrics:
       dimensions:
-        - name: service
-          default: unknown_service
-        - name: operation
-          default: unknown_operation
+        - service
+        - operation
 
 overrides:
   defaults:
