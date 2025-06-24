@@ -7,18 +7,21 @@ datasources:
     url: http://prometheus:9090
     isDefault: true
     editable: true
+    uid: prometheus
 
   - name: Loki
     type: loki
     access: proxy
     url: http://loki:3100
     editable: true
+    uid: loki
 
   - name: Tempo
     type: tempo
     access: proxy
     url: http://tempo:3200
     editable: true
+    uid: tempo
     jsonData:
       httpMethod: GET
       serviceMap:
