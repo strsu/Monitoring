@@ -48,8 +48,6 @@ metrics_generator:
           default: unknown_service
         - name: operation
           default: unknown_operation
-      dimensions_cache_size: 1000
-      aggregation_temporality: "AGGREGATION_TEMPORALITY_CUMULATIVE"
 
 overrides:
   defaults:
