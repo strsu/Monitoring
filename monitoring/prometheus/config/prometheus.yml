@@ -38,3 +38,9 @@ scrape_configs:
     scheme: http
     static_configs:
     - targets: ['host.docker.internal:8088']
+
+  # Tempo 설정
+  - job_name: 'tempo'
+    scrape_interval: 10s
+    static_configs:
+    - targets: ['tempo:3200']

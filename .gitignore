@@ -1,12 +1,118 @@
+# Environment variables
+.env.local
+.env.production
+.env.staging
+
+# Docker volumes and data
 monitoring/*/volume/
-
-monitoring/grafana/*/
-
+monitoring/*/data/
+monitoring/grafana/data/
 monitoring/loki/bolt*
-monitoring/loki/chunks
-monitoring/loki/wal
-monitoring/loki/rules
+monitoring/loki/chunks/
+monitoring/loki/wal/
+monitoring/loki/rules/
+monitoring/tempo/data/
+monitoring/prometheus/volume/
 
+# Logs
 monitoring/nginx/logs/*
+*.log
+logs/
 
+# SSL certificates
+monitoring/nginx/ssl/
+*.pem
+*.key
+*.crt
+*.csr
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Temporary files
+*.tmp
+*.temp
+temp/
+tmp/
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# API keys and secrets
 slack_api_url
+*_token
+*_key
+*_secret
+secrets/
+keys/
+
+# Cloudflare tunnel
+cloudflare_tunnel_token
+
+# Test files
+test_*.py
+*_test.py
+tests/
+
+# Documentation build
+docs/_build/
+site/
+
+# Coverage reports
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
