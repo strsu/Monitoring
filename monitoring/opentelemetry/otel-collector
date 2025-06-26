@@ -35,8 +35,11 @@ exporters:
   
   loki:
     endpoint: http://loki:3100/loki/api/v1/push
-    format: json
-    tenant_id: "default"
+    labels:
+      resource:
+        service.name: "service_name"
+        service.namespace: "service_namespace"
+    format: "json"
 
 service:
   pipelines:
