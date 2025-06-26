@@ -4,8 +4,10 @@ receivers:
   # Django 애플리케이션에서 OTLP exporter를 사용하여 Collector로 데이터를 보낼 때 사용됩니다.
   otlp:
     protocols:
-      grpc: # gRPC 프로토콜 (일반적으로 4317 포트)
-      http: # HTTP/JSON 프로토콜 (일반적으로 4318 포트)
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
 
   # Prometheus 리시버: Prometheus Exporter 형식으로 노출되는 메트릭을 스크랩합니다.
   # 예를 들어, `django-prometheus`가 노출하는 메트릭을 스크랩할 수 있습니다.
@@ -16,7 +18,7 @@ receivers:
         - job_name: 'otel-collector'
           scrape_interval: 5s
           static_configs:
-            - targets: ['localhost:8888'] # OTel Collector가 자체적으로 메트릭을 노출하는 포트
+            - targets: ['otel-collector:8889'] # Docker 서비스 이름 사용
 
   # Filelog 리시버: 파일 시스템에서 로그를 읽어옵니다. (선택 사항, Promtail/Fluentd 대신 사용 가능)
   # Loki로 로그를 전송하는 경우 유용할 수 있습니다.
@@ -68,7 +70,7 @@ processors:
 # exporters: 처리된 데이터를 특정 백엔드로 내보내는 방법 정의
 exporters:
   # OTLP 익스포터 (Tempo용): 트레이스를 Grafana Tempo로 전송합니다.
-  otlp:
+  otlp/tempo:
     endpoint: "tempo:4317" # Docker Compose 환경에서 Tempo 서비스 이름 (gRPC 포트)
     tls:
       insecure: true # 개발 환경에서 SSL 인증서 검증 무시
@@ -99,7 +101,7 @@ service:
     traces:
       receivers: [otlp]
       processors: [batch, memory_limiter, resource]
-      exporters: [otlp] # Tempo로 트레이스 전송
+      exporters: [otlp/tempo] # Tempo로 트레이스 전송
 
     # metrics 파이프라인: OTLP 리시버 -> 배치 프로세서 -> Prometheus 익스포터
     # 또는 Prometheus 리시버 -> 배치 프로세서 -> Prometheus 익스포터
