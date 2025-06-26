@@ -49,7 +49,7 @@ services:
     command: -config.file=/etc/tempo/tempo.yml
 
   otel-collector:
-    image: otel/opentelemetry-collector:latest
+    image: otel/opentelemetry-collector-contrib:latest
     container_name: otel-collector
     command: ["--config=/etc/otel-collector-config.yaml"]
     volumes:
