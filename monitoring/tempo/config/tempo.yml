@@ -1,6 +1,10 @@
 server:
   http_listen_port: 3200
 
+# API 서버 설정 추가 (Grafana에서 TraceQL 쿼리용)
+api:
+  enabled: true
+
 distributor:
   receivers:
     otlp:
