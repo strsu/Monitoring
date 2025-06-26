@@ -82,8 +82,8 @@ exporters:
 
   # Loki 익스포터: 로그를 Grafana Loki로 전송합니다.
   # Loki는 OTLP를 직접 수신할 수 있지만, otel-collector를 통해 전송하는 것도 일반적입니다.
-  lokiexporter:
-    endpoint: "http://loki:3100/loki/api/v1/push" # Docker Compose 환경에서 Loki 서비스 주소
+  loki:
+    endpoint: "http://loki:3100/loki/api/v1/push"
 
 # service: 파이프라인 구성 및 기타 서비스 설정
 service:
@@ -109,4 +109,4 @@ service:
     logs:
       receivers: [otlp] # 만약 filelog를 사용한다면 [otlp, filelog]
       processors: [batch, memory_limiter, resource, attributes] # attributes 프로세서 추가
-      exporters: [lokiexporter] # Loki로 로그 전송
+      exporters: [loki] # Loki로 로그 전송
