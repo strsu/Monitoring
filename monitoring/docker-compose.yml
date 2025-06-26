@@ -20,14 +20,6 @@ services:
       - --web.route-prefix=/  # 라우트 프리픽스 설정
       - --web.enable-remote-write-receiver  # OTel Collector에서 메트릭을 받기 위해 필요
 
-  # uptime-kuma로 대체
-  # blackbox:
-  #   image: prom/blackbox-exporter:v0.24.0
-  #   command:
-  #     - --config.file=/etc/blackbox/blackbox.yml
-  #   volumes:
-  #     - ./blackbox/blackbox.yml:/etc/blackbox/blackbox.yml
-
   loki:
     image: grafana/loki:3.4.4
     container_name: loki
@@ -66,18 +58,25 @@ services:
       - loki
       - tempo
   
+  # grafana랑 기본 dashboard path가 같아서 nginx로 프록시를 할 수 없음 ㅠ
   uptime-kuma:
     image: louislam/uptime-kuma:1
     container_name: uptime-kuma
     restart: unless-stopped
-    environment:
-      - UPTIME_KUMA_DISABLE_FRAME_SAMEORIGIN=true
     volumes:
       - ./uptime-kuma/data:/app/data
-    # ports:
-    #   - 3001:3001
+    ports:
+      - 3001:3001
     depends_on:
       - grafana
+  
+  # uptime-kuma로 대체
+  # blackbox:
+  #   image: prom/blackbox-exporter:v0.24.0
+  #   command:
+  #     - --config.file=/etc/blackbox/blackbox.yml
+  #   volumes:
+  #     - ./blackbox/blackbox.yml:/etc/blackbox/blackbox.yml
 
   pushgateway:
     image: prom/pushgateway:latest
