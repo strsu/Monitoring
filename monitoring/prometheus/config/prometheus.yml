@@ -12,9 +12,8 @@ alerting:
       - alertmanager:9093
 
 # Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
-rule_files:
-  - "django_rule.yml"
-
+# rule_files:
+#   - "django_rule.yml"
 
 # A scrape configuration containing exactly one endpoint to scrape:
 # Here it's Prometheus itself.
@@ -50,3 +49,12 @@ scrape_configs:
     scrape_interval: 10s
     static_configs:
     - targets: ['otel-collector:8889']
+
+  - job_name: 'uptime'
+    scrape_interval: 30s
+    scheme: http
+    static_configs:
+       - targets: ['uptime-kuma:3001']
+    basic_auth: 
+      username: UPTIME_KUMA_USERNAME
+      password: UPTIME_KUMA_PASSWORD
