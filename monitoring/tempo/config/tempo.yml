@@ -50,10 +50,4 @@ metrics_generator:
 overrides:
   defaults:
     metrics_generator:
-      processors: [service-graphs, span-metrics]
-
-# Query Frontend 설정 추가
-query_frontend:
-  search:
-    default_results_limit: 20
-    max_results_limit: 1000 
+      processors: [service-graphs, span-metrics] 
