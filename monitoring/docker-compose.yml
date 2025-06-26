@@ -59,14 +59,15 @@ services:
       - tempo
   
   # grafana랑 기본 dashboard path가 같아서 nginx로 프록시를 할 수 없음 ㅠ
+  # cloudflared 1개로 여러 도메인 연결이 가능해서 CF 터널 사용
   uptime-kuma:
     image: louislam/uptime-kuma:1
     container_name: uptime-kuma
     restart: unless-stopped
     volumes:
       - ./uptime-kuma/data:/app/data
-    ports:
-      - 3001:3001
+    # ports:
+    #   - 3001:3001
     depends_on:
       - grafana
   
