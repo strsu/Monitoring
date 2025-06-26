@@ -1,10 +1,6 @@
 server:
   http_listen_port: 3200
 
-# API 서버 설정 추가 (Grafana에서 TraceQL 쿼리용)
-api:
-  enabled: true
-
 distributor:
   receivers:
     otlp:
@@ -54,4 +50,10 @@ metrics_generator:
 overrides:
   defaults:
     metrics_generator:
-      processors: [service-graphs, span-metrics] 
+      processors: [service-graphs, span-metrics]
+
+# Query Frontend 설정 추가
+query_frontend:
+  search:
+    default_results_limit: 20
+    max_results_limit: 1000 
