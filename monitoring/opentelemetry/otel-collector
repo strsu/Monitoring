@@ -25,8 +25,8 @@ exporters:
     enable_open_metrics: true
     add_metric_suffixes: false
   
-  logging:
-    loglevel: debug
+  debug:
+    verbosity: detailed
   
   otlp/tempo:
     endpoint: tempo:4317
@@ -43,16 +43,16 @@ service:
     traces:
       receivers: [otlp]
       processors: [batch, memory_limiter]
-      exporters: [otlp/tempo, logging]
+      exporters: [otlp/tempo, debug]
     
     metrics:
       receivers: [otlp]
       processors: [batch, memory_limiter]
-      exporters: [prometheus, logging]
+      exporters: [prometheus, debug]
     
     logs:
       receivers: [otlp]
       processors: [batch, memory_limiter]
-      exporters: [loki, logging]
+      exporters: [loki, debug]
 
   extensions: [] 
