@@ -73,17 +73,21 @@ exporters:
     tls:
       insecure: true # 개발 환경에서 SSL 인증서 검증 무시
 
-  # Prometheus Remote Write 익스포터: 메트릭을 Prometheus 또는 Mimir로 전송합니다.
-  # Prometheus가 pull 방식이지만, Collector는 push 방식으로 보낼 수 있습니다.
-  # Prometheus를 백엔드로 사용하거나, Grafana Mimir/Cortex와 같이 Remote Write를 지원하는 시스템에 보낼 때 사용.
-  prometheusremotewrite:
-    endpoint: "http://prometheus:9090/api/v1/write" # Docker Compose 환경에서 Prometheus 서비스 주소
-    # 기본 Prometheus는 remote_write를 위한 /api/v1/write 엔드포인트를 제공합니다.
+  # Prometheus 익스포터: 메트릭을 Prometheus가 스크랩할 수 있도록 노출합니다.
+  prometheus:
+    endpoint: "0.0.0.0:8889"
+    namespace: "otel"
+    const_labels:
+      label1: value1
+    send_timestamps: true
+    metric_expiration: 180m
+    enable_open_metrics: true
+    add_metric_suffixes: false
 
   # Loki 익스포터: 로그를 Grafana Loki로 전송합니다.
   # Loki는 OTLP를 직접 수신할 수 있지만, otel-collector를 통해 전송하는 것도 일반적입니다.
   loki:
-    endpoint: "http://loki:3100/loki/api/v1/push"
+    endpoint: "http://loki:3100/loki/api/v1/push" # Docker Compose 환경에서 Loki 서비스 주소
 
 # service: 파이프라인 구성 및 기타 서비스 설정
 service:
@@ -97,12 +101,12 @@ service:
       processors: [batch, memory_limiter, resource]
       exporters: [otlp] # Tempo로 트레이스 전송
 
-    # metrics 파이프라인: OTLP 리시버 -> 배치 프로세서 -> Prometheus Remote Write 익스포터
-    # 또는 Prometheus 리시버 -> 배치 프로세서 -> Prometheus Remote Write 익스포터
+    # metrics 파이프라인: OTLP 리시버 -> 배치 프로세서 -> Prometheus 익스포터
+    # 또는 Prometheus 리시버 -> 배치 프로세서 -> Prometheus 익스포터
     metrics:
       receivers: [otlp, prometheus] # 앱에서 OTLP로 보내거나, Collector가 Prometheus Exporter를 스크랩
       processors: [batch, memory_limiter, resource]
-      exporters: [prometheusremotewrite] # Prometheus/Mimir로 메트릭 전송
+      exporters: [prometheus] # Prometheus가 스크랩할 수 있도록 메트릭 노출
 
     # logs 파이프라인: OTLP 리시버 -> 배치 프로세서 -> Loki 익스포터
     # Django 앱에서 OTLP 로그를 보내거나, filelog 리시버를 통해 로그 파일을 읽을 수 있습니다.

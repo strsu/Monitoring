@@ -18,6 +18,7 @@ services:
       - --log.level=warn  # 로그 레벨을 warn으로 설정 (기본값은 info)
       - --web.external-url=/prometheus  # 서브 경로 설정
       - --web.route-prefix=/  # 라우트 프리픽스 설정
+      - --web.enable-remote-write-receiver  # OTel Collector에서 메트릭을 받기 위해 필요
 
   # uptime-kuma로 대체
   # blackbox:
