@@ -24,6 +24,12 @@ discovery.relabel "django_app_only" {
     regex         = "app"  // <--- ⭐ 중요: docker-compose.yml의 서비스 이름과 일치해야 함!
     action        = "keep"
   }
+
+  rule {
+    // service label 추가 (Docker Compose 서비스 이름을 동적으로 사용)
+    source_labels = ["__meta_docker_container_label_com_docker_compose_service"]
+    target_label  = "service"
+  }
 }
 
 // 3. 로그 수집 (Source)
