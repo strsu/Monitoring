@@ -5,7 +5,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DJANGO_SETTINGS_MODULE=config.settings
+      - DJANGO_SETTINGS_MODULE=config.settings # settings를 입력해야 otel이 동작한다.
       # - OTEL_TRACES_SAMPLER="parentbased_traceidratio"
       # - OTEL_TRACES_SAMPLER_ARG="0.25"
       # - OTEL_BSP_MAX_EXPORT_BATCH_SIZE=1
