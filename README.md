@@ -1,3 +1,5 @@
+# Alloy 적용 전, Prometheus + Loki + Tempo + Otel Collector 구성입니다. (보존용)
+
 # Monitoring Stack
 
 ![Alt text](image.png)
@@ -154,4 +156,5 @@ with tracer.start_as_current_span("my-operation"):
 1. **애플리케이션** → OpenTelemetry SDK
 2. **OpenTelemetry SDK** → OTel Collector
 3. **OTel Collector** → 각 백엔드 (Prometheus, Loki, Tempo)
+
 4. **백엔드** → Grafana (시각화)
