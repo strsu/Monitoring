@@ -1,0 +1,55 @@
+services:
+  app:
+    build: .
+    container_name: app
+    ports:
+      - "8000:8000"
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings
+      # - OTEL_TRACES_SAMPLER="parentbased_traceidratio"
+      # - OTEL_TRACES_SAMPLER_ARG="0.25"
+      # - OTEL_BSP_MAX_EXPORT_BATCH_SIZE=1
+      # - OTEL_BSP_SCHEDULE_DELAY=100
+      # - OTEL_BSP_EXPORT_TIMEOUT=5000
+      # - OTEL_TRACES_SAMPLER=always_on
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://alloy:4318 # HTTP 포트
+      - OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf     # 프로토콜 명시
+      - OTEL_SERVICE_NAME=django-app                  # Tempo에서 표시할 서비스 이름
+      # - OTEL_RESOURCE_ATTRIBUTES=service.name=django-app,env=prod
+    depends_on:
+      - alloy
+      - postgres
+    volumes:
+      - ./app:/app
+    command: 
+      - opentelemetry-instrument
+      - python
+      - manage.py
+      - runserver
+      - 0.0.0.0:8000
+      - --noreload
+
+  postgres:
+    image: postgres:16
+    container_name: postgres
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+
+  alloy:
+    image: grafana/alloy:v1.11.2
+    container_name: alloy
+    ports:
+      - "12345:12345" # Alloy UI 포트
+    volumes:
+      - ./config.alloy:/etc/alloy/config.alloy:ro # 설정 파일 마운트
+      - /var/run/docker.sock:/var/run/docker.sock:ro # Docker 소켓 마운트 (로그 수집용)
+    # Alloy 실행 커맨드
+    command: [
+      "run",
+      "--server.http.listen-addr=0.0.0.0:12345",
+      "/etc/alloy/config.alloy"
+    ]

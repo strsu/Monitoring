@@ -1,0 +1,89 @@
+logging {
+	level  = "debug"
+	format = "logfmt"
+}
+
+livedebugging {
+  enabled = true
+}
+
+// ======================================================
+// 1. Docker 컨테이너 자동 발견 (Discovery)
+// ======================================================
+discovery.docker "all_containers" {
+  host = "unix:///var/run/docker.sock"
+}
+
+// 2. "app" 서비스만 골라내기 (Relabeling)
+discovery.relabel "django_app_only" {
+  targets = discovery.docker.all_containers.targets
+
+  rule {
+    // Docker Compose의 서비스 라벨을 기준으로 필터링
+    source_labels = ["__meta_docker_container_label_com_docker_compose_service"]
+    regex         = "app"  // <--- ⭐ 중요: docker-compose.yml의 서비스 이름과 일치해야 함!
+    action        = "keep"
+  }
+}
+
+// 3. 로그 수집 (Source)
+loki.source.docker "app_logs" {
+  host       = "unix:///var/run/docker.sock"
+  targets    = discovery.relabel.django_app_only.output
+  forward_to = [loki.write.loki_backend.receiver] // OTLP가 아니라 Loki Write로 보냄
+}
+
+// 4. Loki로 전송 (Write) - ⭐ Docker 로그 전용 익스포터
+loki.write "loki_backend" {
+  endpoint {
+    url = "http://192.168.71.74:3100/loki/api/v1/push"
+  }
+}
+// ======================================================
+
+otelcol.receiver.otlp "otlp_receiver" {
+  grpc {
+    endpoint = "0.0.0.0:4317"
+  }
+
+  http {
+    endpoint = "0.0.0.0:4318"
+
+    cors {
+      allowed_origins = ["*"]
+      allowed_headers = ["*"]
+      max_age         = 600
+    }
+  }
+
+  output {
+    logs    = [otelcol.exporter.otlp.loki.input]
+    traces  = [otelcol.exporter.otlp.tempo.input]
+    metrics = [otelcol.exporter.otlp.pyroscope.input]
+  }
+}
+
+otelcol.exporter.otlp "tempo" {
+  client {
+    endpoint = "192.168.71.74:4317"
+    tls {
+      insecure = true
+    }
+  }
+}
+
+otelcol.exporter.otlp "pyroscope" {
+  client {
+    endpoint = "192.168.71.74:4040"
+    tls {
+      insecure = true
+    }
+  }
+}
+
+otelcol.exporter.otlp "loki" {
+  client {
+    endpoint = "http://192.168.71.74:3100/otlp" 
+    tls { insecure = true }
+  }
+}

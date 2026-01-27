@@ -1,0 +1,22 @@
+django
+django-rest-framework
+
+psycopg2-binary
+
+opentelemetry-api
+opentelemetry-sdk
+
+# Otel 필수
+opentelemetry-distro # 이거 없으면 alloy로 데이터가 안 넘어간다!!
+opentelemetry-exporter-otlp
+
+# Otel 수집하고 싶은 라이브러리 설치
+opentelemetry-instrumentation-django
+opentelemetry-instrumentation-requests
+opentelemetry-instrumentation-psycopg2
+opentelemetry-instrumentation-logging # log에 span id가 자동으로 추가된다.
+opentelemetry-instrumentation-redis
+
+pyroscope-io
+
+
