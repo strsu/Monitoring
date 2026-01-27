@@ -1,7 +1,7 @@
 version: '3.7'
 services:
   prometheus:
-    image: prom/prometheus:v3.4.1
+    image: prom/prometheus:v3.9.1
     container_name: prometheus
     user: root
     extra_hosts:
@@ -19,9 +19,10 @@ services:
       - --web.external-url=/prometheus  # 서브 경로 설정
       - --web.route-prefix=/  # 라우트 프리픽스 설정
       - --web.enable-remote-write-receiver  # OTel Collector에서 메트릭을 받기 위해 필요
+    restart: unless-stopped
 
   loki:
-    image: grafana/loki:3.4.4
+    image: grafana/loki:3.6
     container_name: loki
     volumes:
       - ./loki/config:/mnt/config
@@ -29,9 +30,10 @@ services:
     # ports:
     #   - 3100:3100
     command: -config.file=/mnt/config/loki-config.yml -config.expand-env=true
+    restart: unless-stopped
 
   tempo:
-    image: grafana/tempo:2.3.0
+    image: grafana/tempo:2.10.0
     container_name: tempo
     volumes:
       - ./tempo/config:/etc/tempo
@@ -41,53 +43,10 @@ services:
     #   - 4317:4317  # OTLP gRPC 수신기
     #   - 4318:4318  # OTLP HTTP 수신기
     command: -config.file=/etc/tempo/tempo.yml
-
-  otel-collector:
-    image: otel/opentelemetry-collector-contrib:latest
-    container_name: otel-collector
-    command: ["--config=/etc/otel-collector-config.yaml"]
-    volumes:
-      - ./opentelemetry/otel-collector:/etc/otel-collector-config.yaml
-    # ports:
-    #   - 4317:4317   # OTLP gRPC receiver
-    #   - 4318:4318   # OTLP HTTP receiver
-    #   - 8888:8888   # Prometheus metrics exposed by the collector
-    #   - 8889:8889   # Prometheus exporter metrics
-    depends_on:
-      - prometheus
-      - loki
-      - tempo
-  
-  # grafana랑 기본 dashboard path가 같아서 nginx로 프록시를 할 수 없음 ㅠ
-  # cloudflared 1개로 여러 도메인 연결이 가능해서 CF 터널 사용
-  uptime-kuma:
-    image: louislam/uptime-kuma:1
-    container_name: uptime-kuma
     restart: unless-stopped
-    volumes:
-      - ./uptime-kuma/data:/app/data
-    # ports:
-    #   - 3001:3001
-    depends_on:
-      - grafana
-  
-  # uptime-kuma로 대체
-  # blackbox:
-  #   image: prom/blackbox-exporter:v0.24.0
-  #   command:
-  #     - --config.file=/etc/blackbox/blackbox.yml
-  #   volumes:
-  #     - ./blackbox/blackbox.yml:/etc/blackbox/blackbox.yml
-
-  pushgateway:
-    image: prom/pushgateway:latest
-    container_name: pushgateway
-    restart: always
-    # ports:
-    #   - 9091:9091
 
   alertmanager:
-    image: prom/alertmanager:v0.28.1
+    image: prom/alertmanager:v0.30.0
     restart: unless-stopped
     # ports:
     #   - "9093:9093"
@@ -99,7 +58,7 @@ services:
 
   grafana:
     container_name: grafana
-    image: grafana/grafana:12.0.2
+    image: grafana/grafana:12.3
     user: "472"
     environment:
       - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER}
@@ -117,6 +76,7 @@ services:
     #   - 3000:3000
     depends_on:
       - prometheus
+    restart: unless-stopped
     
   nginx:
     image: nginx:latest
@@ -131,11 +91,9 @@ services:
       - loki
       - tempo
       - alertmanager
-      - pushgateway
-      - otel-collector
     # ports:
     #   - 80:80
-    restart: always
+    restart: unless-stopped
 
   cloudflared:
     container_name: cloudflared
