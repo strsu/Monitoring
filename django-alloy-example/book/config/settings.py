@@ -1,4 +1,5 @@
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -17,7 +18,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     "rest_framework",
     "api.health",
-    "api.memo",
+    "api.book",
 ]
 
 MIDDLEWARE = [
@@ -61,6 +62,9 @@ DATABASES = {
         'PASSWORD': 'postgres',
         'HOST': 'postgres',
         'PORT': '5432',
+        'OPTIONS': {
+            'options': '-c search_path=' + os.environ.get('POSTGRES_SCHEMA', 'public'),
+        },
     }
 }
 

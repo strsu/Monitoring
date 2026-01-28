@@ -1,33 +1,60 @@
 services:
-  app:
+  memo:
     build: .
-    container_name: app
+    container_name: memo
     ports:
       - "8000:8000"
     environment:
       - DJANGO_SETTINGS_MODULE=config.settings # settings를 입력해야 otel이 동작한다.
+      - POSTGRES_SCHEMA=memo
       # - OTEL_TRACES_SAMPLER="parentbased_traceidratio"
       # - OTEL_TRACES_SAMPLER_ARG="0.25"
       # - OTEL_BSP_MAX_EXPORT_BATCH_SIZE=1
       # - OTEL_BSP_SCHEDULE_DELAY=100
       # - OTEL_BSP_EXPORT_TIMEOUT=5000
       # - OTEL_TRACES_SAMPLER=always_on
-      - OTEL_EXPORTER_OTLP_ENDPOINT=YOUR_ALLOY_IP_ADDRESS:4318
+      - OTEL_EXPORTER_OTLP_ENDPOINT=${YOUR_ALLOY_SERVER}
       - OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf # 프로토콜 명시
-      - OTEL_SERVICE_NAME=django-app # Tempo에서 표시할 서비스 이름
-      # - OTEL_RESOURCE_ATTRIBUTES=service.name=django-app,env=prod
+      - OTEL_SERVICE_NAME=memo-app # Tempo에서 표시할 서비스 이름
+      # - OTEL_RESOURCE_ATTRIBUTES=service.name=memo-app,env=prod
     depends_on:
       - alloy
       - postgres
+      - init-postgres-schema
     volumes:
-      - ./app:/app
+      - ./memo:/app
     command:
-      - opentelemetry-instrument
-      - python
-      - manage.py
-      - runserver
-      - 0.0.0.0:8000
-      - --noreload
+      - sh
+      - -c
+      - |
+        python manage.py migrate
+        opentelemetry-instrument python manage.py runserver 0.0.0.0:8000 --noreload
+    
+  
+  book:
+    build: .
+    container_name: book
+    ports:
+      - "8001:8000"
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings
+      - POSTGRES_SCHEMA=book
+      - OTEL_EXPORTER_OTLP_ENDPOINT=${YOUR_ALLOY_SERVER}
+      - OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
+      - OTEL_SERVICE_NAME=book-app
+    depends_on:
+      - alloy
+      - postgres
+      - init-postgres-schema
+    volumes:
+      - ./book:/app
+    command:
+      - sh
+      - -c
+      - |
+        python manage.py migrate
+        opentelemetry-instrument python manage.py runserver 0.0.0.0:8000 --noreload
+
   # Test or Otel Postgres
   postgres:
     image: postgres:16
@@ -39,17 +66,43 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=postgres
 
+  init-postgres-schema:
+    image: postgres:16
+    container_name: init-postgres-schema
+    depends_on:
+      postgres:
+        condition: service_started
+    environment:
+      - PGHOST=postgres
+      - PGPORT=5432
+      - PGUSER=postgres
+      - PGPASSWORD=postgres
+      - PGDATABASE=postgres
+    command:
+      - sh
+      - -c
+      - |
+        until pg_isready -h postgres -p 5432 -U postgres; do
+          echo "Waiting for postgres..."
+          sleep 2
+        done
+        psql -h postgres -U postgres -d postgres -c "CREATE SCHEMA IF NOT EXISTS memo;"
+        psql -h postgres -U postgres -d postgres -c "CREATE SCHEMA IF NOT EXISTS book;"
+        echo "Schemas created successfully"
+
   alloy:
     image: grafana/alloy:v1.11.2
     container_name: alloy
     # 1. 호스트 네트워크 및 PID 모드 사용 (네트워크/프로세스 지표 정확도 향상)
-    network_mode: "host" # Node-Exporter 지표 수집을 위해 필요. 이렇게 사용하면 다른 컨테이너에서 alloy로 호출이 불가능.
+    # network_mode: "host" # IPv6만 리스닝하는 문제로 인해 제거. 같은 Docker 네트워크 사용.
     pid: "host"
     privileged: true # 시스템 정보 접근 권한 부여
     ports:
       - "12345:12345"
+      - "4317:4317"
+      - "4318:4318"
     environment:
-      - COLLECT_SERVER=YOUR_COLLECT_SERVER_IP_ADDRESS
+      - COLLECT_SERVER=${YOUR_COLLECT_SERVER}
     volumes:
       - ./config.alloy:/etc/alloy/config.alloy:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
