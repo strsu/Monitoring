@@ -47,6 +47,41 @@ loki.write "loki_backend" {
 }
 // ======================================================
 
+
+// ======================================================
+// 2. Node-Exporter 수집 설정
+// ======================================================
+
+// 1. Node Exporter 지표 생성 (생산자)
+prometheus.exporter.unix "node_exporter" {
+  procfs_path = "/host/proc"
+  sysfs_path  = "/host/sys"
+  rootfs_path = "/rootfs"
+}
+
+// 2. 생성된 지표를 정기적으로 긁어오기 (수집기)
+prometheus.scrape "scrape_node_metrics" {
+  targets    = prometheus.exporter.unix.node_exporter.targets
+  forward_to = [prometheus.remote_write.local_prometheus.receiver]
+  
+  scrape_interval = "15s" // 수집 주기
+}
+
+// 3. Prometheus 서버로 데이터 전송 (운반자)
+prometheus.remote_write "local_prometheus" {
+  endpoint {
+    url = "http://192.168.71.74:9090/api/v1/write"
+    
+    // 만약 인증이 필요하다면 아래 주석 해제
+    // basic_auth {
+    //   username = "admin"
+    //   password = "password"
+    // }
+  }
+}
+
+// ======================================================
+
 otelcol.receiver.otlp "otlp_receiver" {
   grpc {
     endpoint = "0.0.0.0:4317"

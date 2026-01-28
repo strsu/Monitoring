@@ -42,12 +42,19 @@ services:
   alloy:
     image: grafana/alloy:v1.11.2
     container_name: alloy
+    # 1. 호스트 네트워크 및 PID 모드 사용 (네트워크/프로세스 지표 정확도 향상)
+    network_mode: "host" # Node-Exporter 지표 수집을 위해 필요. 이렇게 사용하면 다른 컨테이너에서 alloy로 호출이 불가능.
+    pid: "host"
+    privileged: true # 시스템 정보 접근 권한 부여
     ports:
-      - "12345:12345" # Alloy UI 포트
+      - "12345:12345"
     volumes:
-      - ./config.alloy:/etc/alloy/config.alloy:ro # 설정 파일 마운트
-      - /var/run/docker.sock:/var/run/docker.sock:ro # Docker 소켓 마운트 (로그 수집용)
-    # Alloy 실행 커맨드
+      - ./config.alloy:/etc/alloy/config.alloy:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      # 2. 호스트 시스템 경로 마운트 - Node-Exporter 지표 수집을 위해 필요
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
     command: [
       "run",
       "--server.http.listen-addr=0.0.0.0:12345",
