@@ -42,7 +42,8 @@ loki.source.docker "app_logs" {
 // 4. Loki로 전송 (Write) - ⭐ Docker 로그 전용 익스포터
 loki.write "loki_backend" {
   endpoint {
-    url = "http://192.168.71.74:3100/loki/api/v1/push"
+    url = "http://" + sys.env("COLLECT_SERVER") + ":3100/loki/api/v1/push"
+
   }
 }
 // ======================================================
@@ -70,7 +71,7 @@ prometheus.scrape "scrape_node_metrics" {
 // 3. Prometheus 서버로 데이터 전송 (운반자)
 prometheus.remote_write "local_prometheus" {
   endpoint {
-    url = "http://192.168.71.74:9090/api/v1/write"
+    url = "http://" + sys.env("COLLECT_SERVER") + ":9090/api/v1/write"
     
     // 만약 인증이 필요하다면 아래 주석 해제
     // basic_auth {
@@ -106,7 +107,7 @@ otelcol.receiver.otlp "otlp_receiver" {
 
 otelcol.exporter.otlp "tempo" {
   client {
-    endpoint = "192.168.71.74:4317"
+    endpoint = sys.env("COLLECT_SERVER") + ":4317"
     tls {
       insecure = true
     }
@@ -115,7 +116,7 @@ otelcol.exporter.otlp "tempo" {
 
 otelcol.exporter.otlp "pyroscope" {
   client {
-    endpoint = "192.168.71.74:4040"
+    endpoint = sys.env("COLLECT_SERVER") + ":4040"
     tls {
       insecure = true
     }
@@ -124,7 +125,7 @@ otelcol.exporter.otlp "pyroscope" {
 
 otelcol.exporter.otlp "loki" {
   client {
-    endpoint = "http://192.168.71.74:3100/otlp" 
+    endpoint = "http://" + sys.env("COLLECT_SERVER") + ":3100/otlp" 
     tls { insecure = true }
   }
 }

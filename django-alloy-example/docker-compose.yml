@@ -12,23 +12,23 @@ services:
       # - OTEL_BSP_SCHEDULE_DELAY=100
       # - OTEL_BSP_EXPORT_TIMEOUT=5000
       # - OTEL_TRACES_SAMPLER=always_on
-      - OTEL_EXPORTER_OTLP_ENDPOINT=http://alloy:4318 # HTTP 포트
-      - OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf     # 프로토콜 명시
-      - OTEL_SERVICE_NAME=django-app                  # Tempo에서 표시할 서비스 이름
+      - OTEL_EXPORTER_OTLP_ENDPOINT=YOUR_ALLOY_IP_ADDRESS:4318
+      - OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf # 프로토콜 명시
+      - OTEL_SERVICE_NAME=django-app # Tempo에서 표시할 서비스 이름
       # - OTEL_RESOURCE_ATTRIBUTES=service.name=django-app,env=prod
     depends_on:
       - alloy
       - postgres
     volumes:
       - ./app:/app
-    command: 
+    command:
       - opentelemetry-instrument
       - python
       - manage.py
       - runserver
       - 0.0.0.0:8000
       - --noreload
-
+  # Test or Otel Postgres
   postgres:
     image: postgres:16
     container_name: postgres
@@ -48,6 +48,8 @@ services:
     privileged: true # 시스템 정보 접근 권한 부여
     ports:
       - "12345:12345"
+    environment:
+      - COLLECT_SERVER=YOUR_COLLECT_SERVER_IP_ADDRESS
     volumes:
       - ./config.alloy:/etc/alloy/config.alloy:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
@@ -55,8 +57,4 @@ services:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
       - /:/rootfs:ro
-    command: [
-      "run",
-      "--server.http.listen-addr=0.0.0.0:12345",
-      "/etc/alloy/config.alloy"
-    ]
+    command: [ "run", "--server.http.listen-addr=0.0.0.0:12345", "/etc/alloy/config.alloy" ]
