@@ -42,4 +42,14 @@ datasources:
           - name: 'Latency 95th percentile'
             query: 'histogram_quantile(0.95, sum(rate(traces_spanmetrics_latency_bucket{$$__tags}[5m])) by (le, span_name))'
           - name: 'Request rate'
-            query: 'sum(rate(traces_spanmetrics_latency_bucket{$$__tags}[5m])) by (span_name)' 
+            query: 'sum(rate(traces_spanmetrics_latency_bucket{$$__tags}[5m])) by (span_name)'
+      tracesToProfiles:
+        datasourceUid: pyroscope
+        tags: [{ key: 'service.name', value: 'service_name' }]
+
+  - name: Pyroscope
+    type: grafana-pyroscope-datasource
+    access: proxy
+    url: http://pyroscope:4040
+    editable: true
+    uid: pyroscope

@@ -1,0 +1,32 @@
+server:
+  http_listen_port: 4040
+  grpc_listen_port: 9095
+  log_level: info
+  log_format: logfmt
+
+storage:
+  backend: filesystem # Or s3, gcs, azure, swift, cos
+  filesystem:
+    dir: /var/lib/pyroscope # Local storage directory
+  # Example S3 configuration (uncomment and configure if using S3)
+  # s3:
+  #   endpoint: "s3.amazonaws.com"
+  #   region: "us-east-1"
+  #   bucket_name: "your-pyroscope-bucket"
+  #   secret_access_key: "YOUR_SECRET_ACCESS_KEY"
+  #   access_key_id: "YOUR_ACCESS_KEY_ID"
+
+pyroscopedb:
+  data_path: /var/lib/pyroscope # Data path for the Pyroscope database
+  max_block_duration: 1h0m0s # Maximum duration for a block of data
+
+analytics:
+  reporting_enabled: true # Enable or disable anonymous usage reporting
+
+compactor:
+  block_ranges:
+    - 1h0m0s
+    - 2h0m0s
+    - 8h0m0s
+  compaction_interval: 30m0s
+  data_dir: /var/lib/pyroscope/compactor

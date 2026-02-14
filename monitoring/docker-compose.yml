@@ -92,8 +92,21 @@ services:
       - loki
       - tempo
       - alertmanager
+      - pyroscope
     # ports:
     #   - 80:80
+    restart: unless-stopped
+
+  pyroscope:
+    image: grafana/pyroscope:1.18.1
+    container_name: pyroscope
+    volumes:
+      - ./pyroscope/config:/etc/pyroscope
+      - ./pyroscope/data:/var/lib/pyroscope
+    # ports:
+    #   - 4040:4040  # HTTP API는 nginx로 프록시
+    #   - 9095:9095  # gRPC 수신기
+    command: -config /etc/pyroscope/config.yml
     restart: unless-stopped
 
   cloudflared:
