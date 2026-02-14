@@ -106,7 +106,7 @@ services:
     # ports:
     #   - 4040:4040  # HTTP API는 nginx로 프록시
     #   - 9095:9095  # gRPC 수신기
-    command: -config /etc/pyroscope/config.yml
+    command: -config.file=/etc/pyroscope/config.yml
     restart: unless-stopped
 
   cloudflared:
