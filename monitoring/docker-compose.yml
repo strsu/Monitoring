@@ -35,6 +35,7 @@ services:
   tempo:
     image: grafana/tempo:2.10.0
     container_name: tempo
+    user: root
     volumes:
       - ./tempo/config:/etc/tempo
       - ./tempo/data:/tmp/tempo
