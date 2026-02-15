@@ -15,10 +15,10 @@ ingester:
 
 compactor:
   compaction:
-    compaction_window: 1h
+    compaction_window: 2h  # 프로덕션 권장값: 2시간마다 압축 수행
     max_block_bytes: 100_000_000
-    block_retention: 1h
-    compacted_block_retention: 10m
+    block_retention: 2h  # compaction_window와 동일하게 설정
+    compacted_block_retention: 168h  # 압축된 블록 보존 기간 (7일)
 
 storage:
   trace:

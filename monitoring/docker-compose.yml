@@ -19,6 +19,7 @@ services:
       - --web.external-url=/prometheus  # 서브 경로 설정
       - --web.route-prefix=/  # 라우트 프리픽스 설정
       - --web.enable-remote-write-receiver  # OTel Collector에서 메트릭을 받기 위해 필요
+      - --storage.tsdb.retention.time=15d  # 메트릭 데이터 보존 기간 (15일)
     restart: unless-stopped
 
   loki:
