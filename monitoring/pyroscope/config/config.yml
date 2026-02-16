@@ -18,17 +18,18 @@ storage:
 
 pyroscopedb:
   data_path: /var/lib/pyroscope # Data path for the Pyroscope database
-  max_block_duration: 1h0m0s # Maximum duration for a block of data
-  retention_period: 168h # 프로파일링 데이터 보존 기간 (7일)
+  max_block_duration: 2h0m0s # Maximum duration for a block of data
+  min_free_disk_gb: 20 # 최소 유지할 디스크 공간 (GB)
+  min_disk_available_percentage: 0.10 # 최소 유지할 디스크 공간 비율 (5%)
+  enforcement_interval: 10m # 보존 정책 적용 주기
 
 analytics:
   reporting_enabled: true # Enable or disable anonymous usage reporting
 
 compactor:
   block_ranges:
-    - 1h0m0s
     - 2h0m0s
+    - 4h0m0s
     - 8h0m0s
-  compaction_interval: 30m0s
+  compaction_interval: 1h0m0s
   data_dir: /var/lib/pyroscope/compactor
-  retention_period: 168h # 압축된 블록 보존 기간 (7일)
