@@ -61,7 +61,7 @@ services:
   grafana:
     container_name: grafana
     image: grafana/grafana:12.3
-    user: "472"
+    user: "472" # 최초 실행시 `chown -R 472:472 grafana/` 로 변경해줘야 함
     environment:
       - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER}
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
