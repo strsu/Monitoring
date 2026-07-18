@@ -17,8 +17,8 @@ compactor:
   compaction:
     compaction_window: 2h  # 프로덕션 권장값: 2시간마다 압축 수행
     max_block_bytes: 100_000_000
-    block_retention: 2h  # compaction_window와 동일하게 설정
-    compacted_block_retention: 168h  # 압축된 블록 보존 기간 (7일)
+    block_retention: 168h  # 트레이스 실제 보존기간 (7일). compaction_window와 다른 값 — 이게 조회 가능 기간
+    compacted_block_retention: 1h  # 압축 완료돼 대체된 원본 블록 삭제 유예 (기본값). 조회 보존기간 아님
 
 storage:
   trace:
