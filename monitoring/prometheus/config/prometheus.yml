@@ -58,3 +58,11 @@ scrape_configs:
     basic_auth: 
       username: UPTIME_KUMA_USERNAME
       password: UPTIME_KUMA_PASSWORD
+
+  - job_name: 'nut-exporter-pve1'
+    scrape_interval: 30s
+    metrics_path: /ups_metrics
+    static_configs:
+    - targets: ['192.168.1.21:9199']
+      labels:
+        instance_name: 'pve-1-ups'
